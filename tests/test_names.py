@@ -81,3 +81,54 @@ def test_keyboard_detection_integrated():
         in item["reasons"]
         for item in results
     )
+
+
+
+
+from trustlayer.name_analyzer import (
+    are_keyboard_neighbors,
+    get_typo_reasons
+)
+
+
+def test_vertical_keyboard_neighbor():
+    assert are_keyboard_neighbors("q", "a")
+
+
+def test_diagonal_keyboard_neighbor():
+    assert are_keyboard_neighbors("w", "a")
+
+
+def test_horizontal_keyboard_neighbor():
+    assert are_keyboard_neighbors("e", "w")
+
+
+def test_character_insertion():
+    assert "single_character_insertion" in get_typo_reasons(
+        "requestss", "requests"
+    )
+
+
+def test_character_deletion():
+    assert "single_character_deletion" in get_typo_reasons(
+        "reqests", "requests"
+    )
+
+
+def test_adjacent_character_transposition():
+    assert "adjacent_character_transposition" in get_typo_reasons(
+        "requets s".replace(" ", ""), "requests"
+    )
+
+
+def test_integrated_insertion_detection():
+    results = find_suspicious_names(
+        "requestss",
+        TRUSTED_PACKAGES
+    )
+
+    assert any(
+        item["similar_to"] == "requests"
+        and "single_character_insertion" in item["reasons"]
+        for item in results
+    )
