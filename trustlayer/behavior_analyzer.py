@@ -62,3 +62,42 @@ def detect_environment_access(script: str) -> list[dict]:
             })
 
     return findings
+
+
+
+def detect_ssh_access(script: str) -> list[dict]:
+    """
+    Detect references to sensitive SSH files
+    and directories through static analysis.
+    """
+
+    findings = []
+
+    patterns = [
+        (
+            r"\.ssh[/\\]",
+            "SSH directory reference detected"
+        ),
+        (
+            r"\bid_rsa\b",
+            "SSH private-key filename reference detected"
+        ),
+        (
+            r"\bauthorized_keys\b",
+            "SSH authorized_keys reference detected"
+        ),
+        (
+            r"\bknown_hosts\b",
+            "SSH known_hosts reference detected"
+        ),
+    ]
+
+    for pattern, description in patterns:
+        if re.search(pattern, script, re.IGNORECASE):
+            findings.append({
+                "category": "ssh_access",
+                "description": description,
+                "severity": "high"
+            })
+
+    return findings

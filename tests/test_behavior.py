@@ -1,3 +1,4 @@
+from trustlayer.behavior_analyzer import detect_ssh_access
 from trustlayer.behavior_analyzer import detect_environment_access
 from trustlayer.behavior_analyzer import (
     detect_network_activity,
@@ -62,5 +63,41 @@ def test_clean_script_has_no_environment_findings():
     script = "print('Hello TrustLayer')"
 
     findings = detect_environment_access(script)
+
+    assert findings == []
+
+
+
+def test_detect_ssh_directory():
+    script = 'path = "~/.ssh/config"'
+
+    findings = detect_ssh_access(script)
+
+    assert any(
+        item["category"] == "ssh_access"
+        for item in findings
+    )
+
+
+def test_detect_private_key_reference():
+    script = 'key_file = "id_rsa"'
+
+    findings = detect_ssh_access(script)
+
+    assert len(findings) == 1
+
+
+def test_detect_authorized_keys():
+    script = 'file_name = "authorized_keys"'
+
+    findings = detect_ssh_access(script)
+
+    assert len(findings) == 1
+
+
+def test_clean_script_has_no_ssh_findings():
+    script = "print('Hello TrustLayer')"
+
+    findings = detect_ssh_access(script)
 
     assert findings == []
